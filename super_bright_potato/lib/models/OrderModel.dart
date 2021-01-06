@@ -49,4 +49,22 @@ class OrderModel extends ChangeNotifier {
     // Rebuild order list
     notifyListeners();
   }
+
+  /// Returns true if the item id exists within the order product's list
+  /// and false if no match is found, alter to orderModel.items.contains
+  /// which returns false if the state is reloaded because
+  /// inventory.product[n] == order.product[n] returns false
+  bool contains(Product product) {
+    Product match = _products.firstWhere(
+      (prod) => prod.id == product.id,
+      orElse: () => null,
+    );
+    return match != null;
+  }
+
+  /// Current price of items in the order
+  double get subTotal =>
+      _products.fold(0, (total, current) => total + current.price);
+
+  // ToDo: implement discounts and total getter
 }

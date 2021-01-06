@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 class Product extends ChangeNotifier {
   Product({
     this.id,
+    this.image,
     this.name,
     this.price,
     // Default to one but leave option in the constructor
@@ -14,6 +15,7 @@ class Product extends ChangeNotifier {
         assert(price >= 0),
         assert(amount > 0);
   final int id;
+  final String image;
   final String name;
   final double price;
   int amount;
