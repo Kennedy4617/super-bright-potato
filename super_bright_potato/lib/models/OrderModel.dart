@@ -50,16 +50,14 @@ class OrderModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns true if the item id exists within the order product's list
-  /// and false if no match is found, alter to orderModel.items.contains
-  /// which returns false if the state is reloaded because
-  /// inventory.product[n] == order.product[n] returns false
-  bool contains(Product product) {
+  /// Finds and returns a product within the _products list
+  /// returns null if the product is not in the list
+  Product findById(int id) {
     Product match = _products.firstWhere(
-      (prod) => prod.id == product.id,
+      (prod) => prod.id == id,
       orElse: () => null,
     );
-    return match != null;
+    return match;
   }
 
   /// Current price of items in the order

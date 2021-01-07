@@ -34,4 +34,12 @@ class Product extends ChangeNotifier {
     // Rebuild this single item widget in the list
     notifyListeners();
   }
+
+  @override
+  bool operator ==(Object other) {
+    return (other is Product) && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode;
 }

@@ -57,12 +57,36 @@ class MyHomePage extends StatelessWidget {
                 SizedBox(
                   width: 380,
                   child: Container(
-                    color: Colors.blueAccent,
+                    padding: EdgeInsets.all(15.0),
+                    color: Color(0xFFF1F1F1),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Orden'),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Orden',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            FlatButton(
+                              color: Color(0xFFF5D4D4),
+                              textColor: Color(0xFFF4213A),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0))),
+                              onPressed: () {
+                                print("heh");
+                              },
+                              child: Text('Quitar todo'),
+                            ),
+                          ],
+                        ),
                         Expanded(
-                          // ToDo: Move to it's own widget
                           child: Consumer<OrderModel>(
                             builder: (_, orderModel, __) => ListView.builder(
                               itemCount: orderModel.products.length,
@@ -99,24 +123,108 @@ class OrderListProduct extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(product.name),
-        Spacer(),
-        Selector<Product, String>(
-          selector: (_, product) => product.amount.toString(),
-          builder: (_, amount, __) {
-            return Text(amount);
-          },
+    /// Intrinsic height is a gift from the gods at google team
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            child: FadeInImage(
+              height: 50,
+              width: 50,
+              placeholder: AssetImage('assets/images/anvorguesa.jpg'),
+              image: product.image == null
+                  ? AssetImage('assets/images/anvorguesa.jpg')
+                  : NetworkImage(product.image),
+              fit: BoxFit.cover,
+            ),
+          ),
+          SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(product.name),
+              Selector<Product, String>(
+                selector: (_, product) => product.price.toString(),
+                builder: (_, price, __) {
+                  return Text('\$$price');
+                },
+              ),
+            ],
+          ),
+          Spacer(),
+          Selector<Product, int>(
+            selector: (_, product) => product.amount,
+            builder: (_, amount, __) {
+              return Row(
+                children: [
+                  CustomButton(
+                    onTap: amount > 1
+                        ? () {
+                            product.reduceAmount();
+                          }
+                        : () {
+                            OrderModel orderModel = context.read<OrderModel>();
+                            orderModel.remove(product);
+                          },
+                    color: amount > 1 ? Color(0xFFC4C4C4) : Color(0xFFF4213A),
+                    icon: amount > 1
+                        ? Icon(Icons.remove)
+                        : Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                  ),
+                  SizedBox(
+                      width: 35,
+                      child: Text(
+                        amount.toString(),
+                        textAlign: TextAlign.center,
+                      )),
+                  CustomButton(
+                    onTap: () {
+                      product.increaseAmount();
+                    },
+                    color: Color(0xFFC4C4C4),
+                    icon: Icon(Icons.add),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomButton extends StatelessWidget {
+  const CustomButton({
+    @required this.onTap,
+    @required this.color,
+    @required this.icon,
+    Key key,
+  }) : super(key: key);
+
+  final Function onTap;
+  final Color color;
+  final Icon icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
-        Spacer(),
-        Selector<Product, String>(
-          selector: (_, product) => product.price.toString(),
-          builder: (_, price, __) {
-            return Text('\$$price');
-          },
-        ),
-      ],
+        width: 35,
+        height: 35,
+        child: icon,
+      ),
     );
   }
 }
@@ -143,7 +251,6 @@ class ProductsGrid extends StatelessWidget {
         childAspectRatio: 1 / 1.2,
       ),
       itemBuilder: (context, idx) {
-        // ToDo: create custom product card widget
         Product product = products[idx];
         return ProductCard(product: product);
       },
@@ -237,8 +344,13 @@ class AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     /// Shulada de optimización
+    ///
+    /// Looks for the product in orderModel
+    /// if it exists the button gets disabled.
+    /// This only gets called when the orderModel.products list changes via
+    /// the add, remove or removeAll methods
     bool isInOrder = context.select<OrderModel, bool>(
-      (order) => order.contains(product),
+      (order) => order.products.contains(product),
     );
     return GestureDetector(
       onTap: isInOrder
@@ -249,7 +361,9 @@ class AddButton extends StatelessWidget {
             },
       child: Container(
         decoration: BoxDecoration(
-          color: isInOrder ? Colors.grey : Colors.blueAccent,
+          color: isInOrder
+              ? Color(0xFFC4C4C4).withOpacity(0.4)
+              : Colors.blueAccent,
           borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         width: 35,
