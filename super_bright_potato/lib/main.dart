@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -56,59 +58,111 @@ class MyHomePage extends StatelessWidget {
                 ),
                 SizedBox(
                   width: 380,
-                  child: Container(
-                    padding: EdgeInsets.all(15.0),
-                    color: Color(0xFFF1F1F1),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Orden',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            FlatButton(
-                              color: Color(0xFFF5D4D4),
-                              textColor: Color(0xFFF4213A),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(8.0))),
-                              onPressed: () {
-                                print("heh");
-                              },
-                              child: Text('Quitar todo'),
-                            ),
-                          ],
-                        ),
-                        Expanded(
-                          child: Consumer<OrderModel>(
-                            builder: (_, orderModel, __) => ListView.builder(
-                              itemCount: orderModel.products.length,
-                              itemBuilder: (context, i) {
-                                Product product = orderModel.products[i];
-                                return ChangeNotifierProvider.value(
-                                  value: product,
-                                  child: OrderListProduct(product: product),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: OrderPanel(),
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class OrderPanel extends StatelessWidget {
+  const OrderPanel({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(15.0),
+      color: Color(0xFFF1F1F1),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Orden',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              FlatButton(
+                color: Color(0xFFF5D4D4),
+                textColor: Color(0xFFF4213A),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                onPressed: () {
+                  print("heh");
+                },
+                child: Text('Quitar todo'),
+              ),
+            ],
+          ),
+          Expanded(
+            child: OrderList(),
+          ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Subtotal',
+                    style: kDetailTextStyle,
+                  ),
+                  Selector<OrderModel, double>(
+                    selector: (_, orderModel) => orderModel.subTotal,
+                    shouldRebuild: (prev, now) {
+                      print('$prev $now');
+                      return false;
+                    },
+                    builder: (_, __, ___) => Text('0'),
+                  )
+                ],
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class OrderList extends StatelessWidget {
+  const OrderList({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<OrderModel, UnmodifiableListView<Product>>(
+      selector: (_, orderModel) => orderModel.products,
+      shouldRebuild: (prevList, newList) {
+        print('${prevList.length} ${newList.length}');
+        return prevList != newList || prevList.length != newList.length;
+      },
+      builder: (context, products, __) {
+        return ListView.separated(
+          separatorBuilder: (_, __) => SizedBox(
+            height: 10,
+          ),
+          itemCount: products.length,
+          itemBuilder: (context, i) {
+            print("rebuild order list");
+            Product product = products[i];
+            return ChangeNotifierProvider.value(
+              value: product,
+              child: OrderListProduct(product: product),
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -124,7 +178,8 @@ class OrderListProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     /// Intrinsic height is a gift from the gods at google team
-    return IntrinsicHeight(
+    return SizedBox(
+      height: 50,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -146,8 +201,8 @@ class OrderListProduct extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(product.name),
-              Selector<Product, String>(
-                selector: (_, product) => product.price.toString(),
+              Selector<Product, double>(
+                selector: (_, product) => product.price,
                 builder: (_, price, __) {
                   return Text('\$$price');
                 },
@@ -158,15 +213,23 @@ class OrderListProduct extends StatelessWidget {
           Selector<Product, int>(
             selector: (_, product) => product.amount,
             builder: (_, amount, __) {
+              /// Selector of product is used to render the product data
+              /// while read<OrderModel> is used to update values like subtotal
+              /// and total, orderModel will call increase/decreaseAmount and
+              /// remove methods which update those values and also call
+              /// product.increase/decreaseAmount
+              OrderModel orderModel = context.read<OrderModel>();
               return Row(
                 children: [
                   CustomButton(
                     onTap: amount > 1
                         ? () {
-                            product.reduceAmount();
+                            print("reducing amount");
+                            orderModel.reduceAmount(product);
+                            // product.reduceAmount();
                           }
                         : () {
-                            OrderModel orderModel = context.read<OrderModel>();
+                            print("removing product ${product.name}");
                             orderModel.remove(product);
                           },
                     color: amount > 1 ? Color(0xFFC4C4C4) : Color(0xFFF4213A),
@@ -180,12 +243,14 @@ class OrderListProduct extends StatelessWidget {
                   SizedBox(
                       width: 35,
                       child: Text(
-                        amount.toString(),
+                        '$amount',
                         textAlign: TextAlign.center,
                       )),
                   CustomButton(
                     onTap: () {
-                      product.increaseAmount();
+                      print("increasing amount");
+                      orderModel.increaseAmount(product);
+                      // product.increaseAmount();
                     },
                     color: Color(0xFFC4C4C4),
                     icon: Icon(Icons.add),
@@ -314,7 +379,7 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '\$${product.price.toString()}',
+                    '\$${product.price}',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 13,
@@ -357,6 +422,7 @@ class AddButton extends StatelessWidget {
           ? null
           : () {
               OrderModel orderModel = context.read<OrderModel>();
+              print('adding product ${product.name}');
               orderModel.add(product);
             },
       child: Container(

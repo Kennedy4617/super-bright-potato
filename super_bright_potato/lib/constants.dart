@@ -17,3 +17,9 @@ List<BoxShadow> kSoftShadow = <BoxShadow>[
     color: Color.fromRGBO(0, 0, 0, 0.028),
   ),
 ];
+
+TextStyle kDetailTextStyle = TextStyle(
+  fontFamily: 'Poppins',
+  fontWeight: FontWeight.w500,
+  color: Color.fromRGBO(0, 0, 0, 0.6),
+);
