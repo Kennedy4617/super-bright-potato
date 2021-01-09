@@ -13,7 +13,8 @@ class OrderModel extends ChangeNotifier {
   double get subTotal => _subTotal;
 
   // A read-only list of products in the order.
-  UnmodifiableListView<Product> get products => UnmodifiableListView(_products);
+  UnmodifiableListView<Product> get products =>
+      UnmodifiableListView([..._products]);
 
   /// Adds a product from the order list
   /// this can only happen once, then the add button must be disabled

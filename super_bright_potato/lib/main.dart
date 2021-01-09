@@ -111,6 +111,7 @@ class OrderPanel extends StatelessWidget {
           Column(
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Subtotal',
@@ -118,11 +119,10 @@ class OrderPanel extends StatelessWidget {
                   ),
                   Selector<OrderModel, double>(
                     selector: (_, orderModel) => orderModel.subTotal,
-                    shouldRebuild: (prev, now) {
-                      print('$prev $now');
-                      return false;
-                    },
-                    builder: (_, __, ___) => Text('0'),
+                    builder: (_, subTotal, __) => Text(
+                      '\$$subTotal',
+                      style: kDetailTextStyle,
+                    ),
                   )
                 ],
               ),
@@ -143,18 +143,18 @@ class OrderList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Selector<OrderModel, UnmodifiableListView<Product>>(
       selector: (_, orderModel) => orderModel.products,
-      shouldRebuild: (prevList, newList) {
-        print('${prevList.length} ${newList.length}');
-        return prevList != newList || prevList.length != newList.length;
-      },
+      // shouldRebuild: (prevList, newList) {
+      //   print('${prevList.length} ${newList.length}');
+      //   return prevList != newList || prevList.length != newList.length;
+      // },
       builder: (context, products, __) {
+        print("rebuild order list");
         return ListView.separated(
           separatorBuilder: (_, __) => SizedBox(
             height: 10,
           ),
           itemCount: products.length,
           itemBuilder: (context, i) {
-            print("rebuild order list");
             Product product = products[i];
             return ChangeNotifierProvider.value(
               value: product,
@@ -213,6 +213,8 @@ class OrderListProduct extends StatelessWidget {
           Selector<Product, int>(
             selector: (_, product) => product.amount,
             builder: (_, amount, __) {
+              print("rebuilding item");
+
               /// Selector of product is used to render the product data
               /// while read<OrderModel> is used to update values like subtotal
               /// and total, orderModel will call increase/decreaseAmount and
@@ -224,12 +226,9 @@ class OrderListProduct extends StatelessWidget {
                   CustomButton(
                     onTap: amount > 1
                         ? () {
-                            print("reducing amount");
                             orderModel.reduceAmount(product);
-                            // product.reduceAmount();
                           }
                         : () {
-                            print("removing product ${product.name}");
                             orderModel.remove(product);
                           },
                     color: amount > 1 ? Color(0xFFC4C4C4) : Color(0xFFF4213A),
@@ -241,16 +240,37 @@ class OrderListProduct extends StatelessWidget {
                           ),
                   ),
                   SizedBox(
-                      width: 35,
+                    width: 35,
+                    child: AnimatedSwitcher(
                       child: Text(
                         '$amount',
                         textAlign: TextAlign.center,
-                      )),
+                        key: ValueKey<int>(amount),
+                      ),
+                      duration: const Duration(milliseconds: 150),
+                      transitionBuilder: (Widget child, animation) {
+                        bool isNewChild = child.key == ValueKey(amount);
+                        Animation<Offset> offsetAnimation;
+                        offsetAnimation = Tween<Offset>(
+                          begin: isNewChild
+                              ? const Offset(0, 1)
+                              : const Offset(0, -1),
+                          end: Offset.zero,
+                        ).animate(animation);
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          ),
+                        );
+                        // return ScaleTransition(child: child, scale: animation);
+                      },
+                    ),
+                  ),
                   CustomButton(
                     onTap: () {
-                      print("increasing amount");
                       orderModel.increaseAmount(product);
-                      // product.increaseAmount();
                     },
                     color: Color(0xFFC4C4C4),
                     icon: Icon(Icons.add),
@@ -422,7 +442,6 @@ class AddButton extends StatelessWidget {
           ? null
           : () {
               OrderModel orderModel = context.read<OrderModel>();
-              print('adding product ${product.name}');
               orderModel.add(product);
             },
       child: Container(

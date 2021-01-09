@@ -41,5 +41,5 @@ class Product extends ChangeNotifier {
   }
 
   @override
-  int get hashCode => id.hashCode ^ name.hashCode;
+  int get hashCode => id.hashCode;
 }
