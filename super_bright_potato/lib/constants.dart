@@ -23,3 +23,10 @@ TextStyle kDetailTextStyle = TextStyle(
   fontWeight: FontWeight.w500,
   color: Color.fromRGBO(0, 0, 0, 0.6),
 );
+
+TextStyle kDetailHighlightTextStyle = TextStyle(
+  fontFamily: 'Poppins',
+  fontWeight: FontWeight.w500,
+  fontSize: 20,
+  color: Color(0xFF000000),
+);

@@ -14,23 +14,39 @@ class Product extends ChangeNotifier {
         assert(name != null),
         assert(price >= 0),
         assert(amount > 0);
+  // The product's unique id
   final int id;
+
+  /// The product's image url, used by NetworkImage wrapped in an image widget
+  /// or by Image.network widget constructor on it's behalf
   final String image;
+
+  /// The product's name
   final String name;
+
+  /// The product's unit price
   final double price;
+
+  /// The product's amount
   int amount;
+
+  /// used exclusively for animations
+  int _prevAmount = 0;
+
+  /// returns the previous value of [amount]
+  int get prevAmount => _prevAmount;
 
   /// Increase the product amount
   void increaseAmount() {
     // ToDo: check for stock(?
-    this.amount++;
+    _prevAmount = amount++;
     // Rebuild this single item widget in the list
     notifyListeners();
   }
 
   /// Reduce the product amount
   void reduceAmount() {
-    this.amount--;
+    _prevAmount = amount--;
     // Rebuild this single item widget in the list
     notifyListeners();
   }
