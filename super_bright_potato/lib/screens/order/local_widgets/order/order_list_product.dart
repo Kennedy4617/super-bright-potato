@@ -92,8 +92,7 @@ class OrderListProduct extends StatelessWidget {
                                 orderModel.reduceAmount(product);
                               }
                             : () {
-                                Product removedProduct =
-                                    orderModel.remove(product);
+                                orderModel.remove(product);
                                 AnimatedList.of(context).removeItem(
                                     productIndex, (context, animation) {
                                   return _buildRemovedProduct(

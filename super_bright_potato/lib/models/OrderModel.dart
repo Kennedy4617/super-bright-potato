@@ -48,14 +48,11 @@ class OrderModel extends ChangeNotifier {
   /// Removes a product from order the list and returns the removed item.
   /// This method is only called when a product has only 1 item
   /// and the user presses the reduce button again
-  Product remove(Product product) {
-    int productIndex = _products.indexOf(product);
-    Product removedProduct = _products.removeAt(productIndex);
-    // _products.remove(product);
+  void remove(Product product) {
+    _products.remove(product);
     updateSubtotal();
     // Rebuild order list
     notifyListeners();
-    return removedProduct;
   }
 
   /// Removes all items
