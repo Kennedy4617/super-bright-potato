@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:super_bright_potato/models/OrderModel.dart';
 import 'package:super_bright_potato/screens/order/make_order.dart';
 
 void main() {
@@ -22,5 +21,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// OrderModel orderModel = new OrderModel();

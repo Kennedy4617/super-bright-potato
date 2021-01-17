@@ -4,6 +4,8 @@ import 'package:super_bright_potato/models/OrderModel.dart';
 import 'package:super_bright_potato/models/Product.dart';
 import 'package:provider/provider.dart';
 
+/// Non reusable button
+/// It's separated to keep the card widget from being massive
 class AddButton extends StatelessWidget {
   const AddButton({
     Key key,
@@ -52,15 +54,5 @@ class AddButton extends StatelessWidget {
         ),
       ),
     );
-    /*
-    return RaisedButton(
-      child: Text('Add'),
-      onPressed: isInOrder
-          ? null
-          : () {
-              OrderModel orderModel = context.read<OrderModel>();
-              orderModel.add(product);
-            },
-    );*/
   }
 }

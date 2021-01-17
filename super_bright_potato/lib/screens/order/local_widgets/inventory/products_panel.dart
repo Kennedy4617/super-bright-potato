@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:super_bright_potato/constants.dart';
 import 'package:super_bright_potato/models/Product.dart';
-import 'file:///D:/Documents/flutter_projects/super-bright-potato/super_bright_potato/lib/screens/order/local_widgets/inventory/products_grid.dart';
+import 'products_grid.dart';
 
 class ProductsPanel extends StatelessWidget {
   const ProductsPanel({
@@ -18,9 +20,37 @@ class ProductsPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Productos'),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 15,
+            horizontal: 30,
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.chevron_left),
+              SizedBox(width: 20),
+              Text(
+                'Productos',
+                style: kActiveTabTextStyle,
+              ),
+              SizedBox(
+                width: 50,
+              ),
+              Text(
+                'Categorías',
+                style: kDefaultTabTextStyle,
+              ),
+              SizedBox(
+                width: 50,
+              ),
+              Text(
+                'Descuetos',
+                style: kDefaultTabTextStyle,
+              ),
+            ],
+          ),
+        ),
         Expanded(
-          // ToDo: Move to it's own widget
           child: ProductsGrid(products: products, listKey: _listKey),
         ),
       ],

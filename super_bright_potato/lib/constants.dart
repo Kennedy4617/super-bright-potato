@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 
 List<BoxShadow> kSoftShadow = <BoxShadow>[
   BoxShadow(
-    offset: Offset(0, 12),
-    blurRadius: 140,
+    offset: Offset(0, 11),
+    blurRadius: 100,
     color: Color.fromRGBO(0, 0, 0, 0.07),
   ),
   BoxShadow(
@@ -30,3 +30,13 @@ TextStyle kDetailHighlightTextStyle = TextStyle(
   fontSize: 20,
   color: Color(0xFF000000),
 );
+
+TextStyle kActiveTabTextStyle = TextStyle(
+  fontFamily: 'Roboto',
+  fontSize: 20,
+  // ToDo: change color based on active tab
+  color: Color(0xFF000000),
+);
+
+TextStyle kDefaultTabTextStyle =
+    kActiveTabTextStyle.copyWith(color: Color(0xFF828282));

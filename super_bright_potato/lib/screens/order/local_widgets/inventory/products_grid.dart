@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:super_bright_potato/models/Product.dart';
-import 'file:///D:/Documents/flutter_projects/super-bright-potato/super_bright_potato/lib/screens/order/local_widgets/inventory/product_card.dart';
+import 'product_card.dart';
 
 class ProductsGrid extends StatelessWidget {
   const ProductsGrid({
@@ -16,7 +16,7 @@ class ProductsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      padding: EdgeInsets.all(30.0),
+      padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10),
       itemCount: products.length,
       clipBehavior: Clip.none,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

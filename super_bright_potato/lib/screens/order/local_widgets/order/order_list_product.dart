@@ -100,7 +100,7 @@ class OrderListProduct extends StatelessWidget {
                                 });
                               },
                         color:
-                            amount > 1 ? Color(0xFFC4C4C4) : Color(0xFFF4213A),
+                            amount > 1 ? Color(0xFFF4F5F6) : Color(0xFFF4213A),
                         icon: amount > 1
                             ? Icon(Icons.remove)
                             : Icon(
@@ -119,7 +119,7 @@ class OrderListProduct extends StatelessWidget {
                         onTap: () {
                           orderModel.increaseAmount(product);
                         },
-                        color: Color(0xFFC4C4C4),
+                        color: Color(0xFFF4F5F6),
                         icon: Icon(Icons.add),
                       ),
                     ],
@@ -215,7 +215,7 @@ class StaticOrderListProduct extends StatelessWidget {
                   ),
                   CustomButton(
                     onTap: () => null,
-                    color: Color(0xFFC4C4C4),
+                    color: Color(0xFFF4F5F6),
                     icon: Icon(Icons.add),
                   ),
                 ],
@@ -243,7 +243,7 @@ class AnimatedAmountText extends StatelessWidget {
           textAlign: TextAlign.center,
           key: ValueKey<int>(amount),
         ),
-        duration: Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 250),
         transitionBuilder: (Widget child, animation) {
           /// transition builder gets called twice so we will abuse that to
           /// separate in/out animation properties
@@ -269,6 +269,7 @@ class AnimatedAmountText extends StatelessWidget {
             CurvedAnimation(
               parent: animation,
               curve: isNewChild ? Curves.easeIn : Curves.easeOutBack,
+              // curve: Curves.easeInOut,
             ),
           );
           return SlideTransition(
